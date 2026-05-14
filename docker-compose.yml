@@ -1,0 +1,55 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: leadspark-mysql
+    environment:
+      MYSQL_DATABASE: leadspark
+      MYSQL_USER: leadspark
+      MYSQL_PASSWORD: leadspark
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: leadspark-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  api:
+    build:
+      context: ./backend
+    container_name: leadspark-api
+    environment:
+      MYSQL_URL: jdbc:mysql://mysql:3306/leadspark?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      MYSQL_USERNAME: leadspark
+      MYSQL_PASSWORD: leadspark
+      AI_PROVIDER: mock
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+
+  web:
+    build:
+      context: ./frontend
+    container_name: leadspark-web
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  mysql-data:
+  redis-data:
