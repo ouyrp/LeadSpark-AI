@@ -1,7 +1,6 @@
 import {
   ArrowUpRight,
   BarChart3,
-  Bot,
   Building2,
   CalendarClock,
   CheckCircle2,
@@ -10,6 +9,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { apiGet } from "@/lib/api";
+import { AppShell } from "@/components/AppShell";
+import Link from "next/link";
 
 type PageResult<T> = {
   items: T[];
@@ -61,8 +62,6 @@ type ImportTask = {
   createdAt: string;
 };
 
-const navItems = ["工作台", "线索中心", "客户画像", "销售任务", "商机管理", "数据分析", "系统设置"];
-
 async function loadWorkbench() {
   try {
     const [workbench, leads, tasks, importTasks] = await Promise.all([
@@ -100,33 +99,7 @@ export default async function Home() {
   ];
 
   return (
-    <main className="min-h-screen bg-mist text-ink">
-      <aside className="fixed inset-y-0 left-0 hidden w-64 border-r border-slate-200 bg-white px-5 py-6 lg:block">
-        <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded bg-leaf text-white">
-            <Bot size={22} />
-          </div>
-          <div>
-            <p className="text-lg font-semibold">LeadSpark AI</p>
-            <p className="text-xs text-slate-500">智能主动获客</p>
-          </div>
-        </div>
-
-        <nav className="mt-10 space-y-1 text-sm">
-          {navItems.map((item, index) => (
-            <div
-              key={item}
-              className={`rounded px-3 py-2 ${
-                index === 0 ? "bg-leaf text-white" : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              {item}
-            </div>
-          ))}
-        </nav>
-      </aside>
-
-      <section className="lg:pl-64">
+    <AppShell active="工作台">
         <header className="border-b border-slate-200 bg-white px-5 py-4 lg:px-8">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
@@ -178,10 +151,10 @@ export default async function Home() {
                   <Building2 size={18} className="text-leaf" />
                   <h2 className="font-semibold">高优先级线索</h2>
                 </div>
-                <button className="inline-flex items-center gap-1 text-sm font-medium text-leaf">
+                <Link href="/leads" className="inline-flex items-center gap-1 text-sm font-medium text-leaf">
                   查看全部
                   <ArrowUpRight size={16} />
-                </button>
+                </Link>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] border-collapse text-sm">
@@ -218,7 +191,9 @@ export default async function Home() {
             <div className="rounded border border-slate-200 bg-white p-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={18} className="text-leaf" />
-                <h2 className="font-semibold">待跟进任务</h2>
+                <Link href="/tasks" className="font-semibold hover:text-leaf">
+                  待跟进任务
+                </Link>
               </div>
               <div className="mt-4 space-y-3">
                 {tasks.map((task, index) => (
@@ -284,7 +259,6 @@ export default async function Home() {
             </div>
           </section>
         </div>
-      </section>
-    </main>
+    </AppShell>
   );
 }
