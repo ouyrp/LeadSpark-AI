@@ -81,9 +81,11 @@ Redis: localhost:6379
 - 基础 Security 配置。
 - 健康检查接口。
 - 登录接口占位。
-- 线索列表、详情、创建接口占位。
-- AI 评分和话术接口占位。
-- 工作台数据接口占位。
+- 线索列表、详情、创建接口，已接入 MySQL。
+- AI 评分和话术接口，已保存推荐结果。
+- 工作台数据接口，已从线索、任务、跟进、商机表聚合。
+- 销售任务、跟进记录、商机创建和查询接口。
+- 线索导入任务、导入错误记录、采集信号转线索接口。
 - Flyway MySQL 初始化脚本。
 - 同类产品企业信号每日采集任务。
 
@@ -91,18 +93,19 @@ Redis: localhost:6379
 
 - Next.js 应用骨架。
 - Tailwind CSS 配置。
-- 工作台首页。
+- 工作台首页，已接入真实后端 API。
 - 指标卡片。
 - 高分线索表。
-- AI 优化建议面板。
+- 待跟进任务面板。
+- 最近导入任务面板。
 
 ## 下一步建议
 
 1. 完成真实登录、JWT、用户和租户表落库。
-2. 引入 MyBatis-Plus 实体、Mapper、Service。
-3. 完成线索导入和导入任务表。
-4. 接入真实 AI Provider 适配层。
-5. 把前端工作台接入真实 API。
+2. 引入 MyBatis-Plus 实体、Mapper、Service，替换当前 JdbcTemplate 原型实现。
+3. 接入真实 AI Provider 适配层。
+4. 增加 CSV/Excel 文件上传解析和字段映射。
+5. 拆分前端线索中心、任务中心、商机管理独立页面。
 
 ## 后端依赖下载说明
 
@@ -144,6 +147,20 @@ curl http://127.0.0.1:8080/api/v1/competitor-collections/jobs
 
 ```bash
 curl http://127.0.0.1:8080/api/v1/competitor-collections/signals
+```
+
+把未导入的采集信号转成销售线索：
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/v1/import-tasks/competitor-signals \
+  -H 'Content-Type: application/json' \
+  -d '{"limit":100,"minConfidence":0}'
+```
+
+查看导入任务：
+
+```bash
+curl http://127.0.0.1:8080/api/v1/import-tasks
 ```
 
 当前默认使用 `MockCompetitorDataProvider`，只生成占位数据。后续接入企查查、天眼查、搜索 API、新闻 API 或内部数据源时，实现 `CompetitorDataProvider` 即可。采集范围应限定在公开网页、授权 API 和企业自有数据内，不应绕过登录、验证码、robots 或平台访问限制。

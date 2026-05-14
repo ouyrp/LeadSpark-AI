@@ -49,16 +49,29 @@ type Workbench = {
   sourceStats: Array<{ source: string; count: number; avgScore: number }>;
 };
 
+type ImportTask = {
+  taskId: number;
+  taskType: string;
+  sourceType: string;
+  status: string;
+  totalRows: number;
+  successRows: number;
+  failedRows: number;
+  duplicateRows: number;
+  createdAt: string;
+};
+
 const navItems = ["工作台", "线索中心", "客户画像", "销售任务", "商机管理", "数据分析", "系统设置"];
 
 async function loadWorkbench() {
   try {
-    const [workbench, leads, tasks] = await Promise.all([
+    const [workbench, leads, tasks, importTasks] = await Promise.all([
       apiGet<Workbench>("/api/v1/analytics/workbench"),
       apiGet<PageResult<Lead>>("/api/v1/leads?page=1&pageSize=6"),
       apiGet<Task[]>("/api/v1/tasks?status=PENDING&limit=6"),
+      apiGet<ImportTask[]>("/api/v1/import-tasks"),
     ]);
-    return { workbench, leads: leads.items, tasks, offline: false };
+    return { workbench, leads: leads.items, tasks, importTasks, offline: false };
   } catch {
     return {
       workbench: {
@@ -71,13 +84,14 @@ async function loadWorkbench() {
       },
       leads: [],
       tasks: [],
+      importTasks: [],
       offline: true,
     };
   }
 }
 
 export default async function Home() {
-  const { workbench, leads, tasks, offline } = await loadWorkbench();
+  const { workbench, leads, tasks, importTasks, offline } = await loadWorkbench();
   const metrics = [
     { label: "今日待跟进", value: workbench.todayTasks, change: `${workbench.overdueTasks} 个逾期`, icon: CalendarClock },
     { label: "高分线索", value: workbench.newHighScoreLeads, change: "80 分以上", icon: Sparkles },
@@ -224,6 +238,49 @@ export default async function Home() {
                 ))}
                 {tasks.length === 0 ? <p className="text-sm text-slate-500">暂无待办任务</p> : null}
               </div>
+            </div>
+          </section>
+
+          <section className="rounded border border-slate-200 bg-white">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+              <div className="flex items-center gap-2">
+                <BarChart3 size={18} className="text-leaf" />
+                <h2 className="font-semibold">最近导入任务</h2>
+              </div>
+              <span className="text-sm text-slate-500">采集信号进入线索池</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[760px] border-collapse text-sm">
+                <thead className="bg-slate-50 text-left text-slate-500">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">任务</th>
+                    <th className="px-4 py-3 font-medium">来源</th>
+                    <th className="px-4 py-3 font-medium">状态</th>
+                    <th className="px-4 py-3 font-medium">总数</th>
+                    <th className="px-4 py-3 font-medium">成功</th>
+                    <th className="px-4 py-3 font-medium">重复</th>
+                    <th className="px-4 py-3 font-medium">失败</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {importTasks.slice(0, 5).map((task) => (
+                    <tr key={task.taskId} className="border-t border-slate-100">
+                      <td className="px-4 py-4 font-medium">{task.taskId}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.sourceType}</td>
+                      <td className="px-4 py-4">
+                        <span className="rounded bg-mist px-2 py-1 text-xs font-semibold text-leaf">
+                          {task.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-slate-600">{task.totalRows}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.successRows}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.duplicateRows}</td>
+                      <td className="px-4 py-4 text-slate-600">{task.failedRows}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {importTasks.length === 0 ? <p className="px-4 py-5 text-sm text-slate-500">暂无导入任务</p> : null}
             </div>
           </section>
         </div>
