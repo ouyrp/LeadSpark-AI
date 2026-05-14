@@ -85,6 +85,7 @@ Redis: localhost:6379
 - AI 评分和话术接口占位。
 - 工作台数据接口占位。
 - Flyway MySQL 初始化脚本。
+- 同类产品企业信号每日采集任务。
 
 前端：
 
@@ -113,3 +114,100 @@ mvn -s maven-setting.xml -Dmaven.repo.local=.m2/repository test
 ```
 
 当前 `backend/maven-setting.xml` 强制使用 Maven Central，并配置了本机代理 `127.0.0.1:7890`。如果本机代理端口不同，需要同步修改该文件里的 `<proxies>`。
+
+## 同类产品企业数据采集任务
+
+系统内置一个每日定时任务，用于围绕励消云、探迹、销售易、纷享销客等同类产品关键词采集公开企业信号。
+
+默认配置：
+
+```yaml
+leadspark:
+  competitor-collection:
+    enabled: true
+    cron: 0 30 2 * * *
+```
+
+手动触发：
+
+```bash
+curl -X POST http://127.0.0.1:8080/api/v1/competitor-collections/run
+```
+
+查看任务：
+
+```bash
+curl http://127.0.0.1:8080/api/v1/competitor-collections/jobs
+```
+
+查看采集信号：
+
+```bash
+curl http://127.0.0.1:8080/api/v1/competitor-collections/signals
+```
+
+当前默认使用 `MockCompetitorDataProvider`，只生成占位数据。后续接入企查查、天眼查、搜索 API、新闻 API 或内部数据源时，实现 `CompetitorDataProvider` 即可。采集范围应限定在公开网页、授权 API 和企业自有数据内，不应绕过登录、验证码、robots 或平台访问限制。
+
+已内置的数据源 Provider：
+
+- `MockCompetitorDataProvider`：本地占位数据，默认开启。
+- `QichachaCompetitorDataProvider`：企查查授权 API，默认关闭。
+- `TianyanchaCompetitorDataProvider`：天眼查授权 API，默认关闭。
+- `SearchApiCompetitorDataProvider`：通用搜索 API，默认关闭。
+- `InternalCompanySourceProvider`：内部企业数据表，默认开启。
+- `RecruitmentApiCompetitorDataProvider`：招聘数据 API，用于识别销售、增长、获客、CRM 等岗位需求信号，默认关闭。
+- `BiddingApiCompetitorDataProvider`：招投标/采购公告 API，用于识别 CRM、营销、获客、销售系统采购需求，默认关闭。
+- `NewsApiCompetitorDataProvider`：新闻/舆情 API，用于识别融资、扩张、数字化转型等事件，默认关闭。
+- `WebsiteApiCompetitorDataProvider`：官网、案例页、产品页聚合 API，用于识别竞品客户和行业案例，默认关闭。
+
+相关环境变量：
+
+```bash
+COMPETITOR_COLLECTION_ENABLED=true
+COMPETITOR_COLLECTION_CRON="0 30 2 * * *"
+COMPETITOR_SOURCE_MOCK_ENABLED=true
+
+QICHACHA_ENABLED=false
+QICHACHA_BASE_URL=
+QICHACHA_API_KEY=
+
+TIANYANCHA_ENABLED=false
+TIANYANCHA_BASE_URL=
+TIANYANCHA_API_KEY=
+
+SEARCH_API_ENABLED=false
+SEARCH_API_BASE_URL=
+SEARCH_API_API_KEY=
+
+INTERNAL_COMPANY_SOURCE_ENABLED=true
+
+RECRUITMENT_API_ENABLED=false
+RECRUITMENT_API_BASE_URL=
+RECRUITMENT_API_API_KEY=
+
+BIDDING_API_ENABLED=false
+BIDDING_API_BASE_URL=
+BIDDING_API_API_KEY=
+
+NEWS_API_ENABLED=false
+NEWS_API_BASE_URL=
+NEWS_API_API_KEY=
+
+WEBSITE_API_ENABLED=false
+WEBSITE_API_BASE_URL=
+WEBSITE_API_API_KEY=
+```
+
+外部 API 返回会被统一解析为企业信号，并落库到：
+
+```text
+competitor_company_signal
+```
+
+内部数据源可先写入：
+
+```text
+internal_company_source
+```
+
+每日任务会读取内部数据源中匹配关键词的企业，再统一落到 `competitor_company_signal`，后续可以继续扩展为自动转线索或进入 AI 评分流程。

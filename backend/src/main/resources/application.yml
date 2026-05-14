@@ -32,3 +32,51 @@ leadspark:
     provider: ${AI_PROVIDER:mock}
     base-url: ${AI_BASE_URL:}
     api-key: ${AI_API_KEY:}
+  competitor-collection:
+    enabled: ${COMPETITOR_COLLECTION_ENABLED:true}
+    cron: ${COMPETITOR_COLLECTION_CRON:0 30 2 * * *}
+    tenant-id: ${COMPETITOR_COLLECTION_TENANT_ID:1}
+    keywords:
+      - 励消云
+      - 探迹
+      - 销售易
+      - 纷享销客
+      - 尘锋
+      - 客套
+      - 获客云
+      - 智能获客
+      - 销售线索
+      - B2B获客
+    sources:
+      mock:
+        enabled: ${COMPETITOR_SOURCE_MOCK_ENABLED:true}
+      qichacha:
+        enabled: ${QICHACHA_ENABLED:false}
+        base-url: ${QICHACHA_BASE_URL:}
+        api-key: ${QICHACHA_API_KEY:}
+      tianyancha:
+        enabled: ${TIANYANCHA_ENABLED:false}
+        base-url: ${TIANYANCHA_BASE_URL:}
+        api-key: ${TIANYANCHA_API_KEY:}
+      search-api:
+        enabled: ${SEARCH_API_ENABLED:false}
+        base-url: ${SEARCH_API_BASE_URL:}
+        api-key: ${SEARCH_API_API_KEY:}
+      internal:
+        enabled: ${INTERNAL_COMPANY_SOURCE_ENABLED:true}
+      recruitment-api:
+        enabled: ${RECRUITMENT_API_ENABLED:false}
+        base-url: ${RECRUITMENT_API_BASE_URL:}
+        api-key: ${RECRUITMENT_API_API_KEY:}
+      bidding-api:
+        enabled: ${BIDDING_API_ENABLED:false}
+        base-url: ${BIDDING_API_BASE_URL:}
+        api-key: ${BIDDING_API_API_KEY:}
+      news-api:
+        enabled: ${NEWS_API_ENABLED:false}
+        base-url: ${NEWS_API_BASE_URL:}
+        api-key: ${NEWS_API_API_KEY:}
+      website-api:
+        enabled: ${WEBSITE_API_ENABLED:false}
+        base-url: ${WEBSITE_API_BASE_URL:}
+        api-key: ${WEBSITE_API_API_KEY:}

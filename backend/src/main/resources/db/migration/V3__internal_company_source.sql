@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS internal_company_source (
+  id BIGINT PRIMARY KEY,
+  tenant_id BIGINT NOT NULL,
+  company_name VARCHAR(255) NOT NULL,
+  normalized_company_name VARCHAR(255) NOT NULL,
+  product_name VARCHAR(128) NULL,
+  industry VARCHAR(128) NULL,
+  region VARCHAR(128) NULL,
+  source_name VARCHAR(128) NOT NULL DEFAULT 'internal',
+  source_url VARCHAR(512) NULL,
+  signal_title VARCHAR(512) NULL,
+  signal_summary TEXT NULL,
+  keywords VARCHAR(512) NULL,
+  confidence INT NOT NULL DEFAULT 70,
+  status VARCHAR(32) NOT NULL DEFAULT 'ACTIVE',
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  KEY idx_internal_source_tenant_status (tenant_id, status),
+  KEY idx_internal_source_keyword (tenant_id, keywords),
+  KEY idx_internal_source_company (tenant_id, normalized_company_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

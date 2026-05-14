@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS competitor_collection_job (
+  id BIGINT PRIMARY KEY,
+  tenant_id BIGINT NOT NULL,
+  job_type VARCHAR(64) NOT NULL,
+  status VARCHAR(32) NOT NULL,
+  trigger_type VARCHAR(32) NOT NULL,
+  keyword_count INT NOT NULL DEFAULT 0,
+  collected_count INT NOT NULL DEFAULT 0,
+  deduped_count INT NOT NULL DEFAULT 0,
+  error_message TEXT NULL,
+  started_at DATETIME NOT NULL,
+  finished_at DATETIME NULL,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  KEY idx_comp_job_tenant_time (tenant_id, started_at),
+  KEY idx_comp_job_status (tenant_id, status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS competitor_company_signal (
+  id BIGINT PRIMARY KEY,
+  tenant_id BIGINT NOT NULL,
+  job_id BIGINT NOT NULL,
+  keyword VARCHAR(128) NOT NULL,
+  company_name VARCHAR(255) NOT NULL,
+  normalized_company_name VARCHAR(255) NOT NULL,
+  product_name VARCHAR(128) NULL,
+  source_type VARCHAR(64) NOT NULL,
+  source_name VARCHAR(128) NOT NULL,
+  source_url VARCHAR(512) NULL,
+  title VARCHAR(512) NULL,
+  summary TEXT NULL,
+  signal_time DATETIME NULL,
+  confidence INT NOT NULL DEFAULT 0,
+  imported_to_lead TINYINT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  UNIQUE KEY uk_comp_signal_dedupe (tenant_id, normalized_company_name, keyword, source_type),
+  KEY idx_comp_signal_job (tenant_id, job_id),
+  KEY idx_comp_signal_keyword (tenant_id, keyword),
+  KEY idx_comp_signal_company (tenant_id, normalized_company_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
