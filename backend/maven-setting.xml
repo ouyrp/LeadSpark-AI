@@ -5,9 +5,37 @@
 
     <localRepository>${user.home}/.m2/repository</localRepository>
 
+    <mirrors>
+        <mirror>
+            <id>central-only</id>
+            <name>Maven Central Only</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <mirrorOf>*</mirrorOf>
+        </mirror>
+    </mirrors>
+
     <pluginGroups>
         <pluginGroup>org.springframework.boot</pluginGroup>
     </pluginGroups>
+
+    <proxies>
+        <proxy>
+            <id>local-http-proxy</id>
+            <active>true</active>
+            <protocol>http</protocol>
+            <host>127.0.0.1</host>
+            <port>7890</port>
+            <nonProxyHosts>localhost|127.0.0.1|::1</nonProxyHosts>
+        </proxy>
+        <proxy>
+            <id>local-https-proxy</id>
+            <active>true</active>
+            <protocol>https</protocol>
+            <host>127.0.0.1</host>
+            <port>7890</port>
+            <nonProxyHosts>localhost|127.0.0.1|::1</nonProxyHosts>
+        </proxy>
+    </proxies>
 
     <profiles>
         <profile>
@@ -25,30 +53,6 @@
                         <enabled>false</enabled>
                     </snapshots>
                 </repository>
-                <repository>
-                    <id>aliyun-public</id>
-                    <name>Aliyun Public Repository</name>
-                    <url>https://maven.aliyun.com/repository/public</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
-                <repository>
-                    <id>tencent-public</id>
-                    <name>Tencent Public Repository</name>
-                    <url>https://mirrors.cloud.tencent.com/nexus/repository/maven-public/</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </repository>
             </repositories>
 
             <pluginRepositories>
@@ -56,30 +60,6 @@
                     <id>maven-central</id>
                     <name>Maven Central Plugins</name>
                     <url>https://repo.maven.apache.org/maven2</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>aliyun-public</id>
-                    <name>Aliyun Public Plugins</name>
-                    <url>https://maven.aliyun.com/repository/public</url>
-                    <releases>
-                        <enabled>true</enabled>
-                        <updatePolicy>daily</updatePolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                </pluginRepository>
-                <pluginRepository>
-                    <id>tencent-public</id>
-                    <name>Tencent Public Plugins</name>
-                    <url>https://mirrors.cloud.tencent.com/nexus/repository/maven-public/</url>
                     <releases>
                         <enabled>true</enabled>
                         <updatePolicy>daily</updatePolicy>

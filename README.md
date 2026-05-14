@@ -12,14 +12,15 @@ LeadSpark AI 是一个面向 B2B 主动获客的智能销售系统。当前仓�
 ### 1. 启动基础设施
 
 ```bash
-docker compose up -d mysql redis
+colima start
+docker-compose up -d mysql redis
 ```
 
 ### 2. 启动后端
 
 ```bash
 cd backend
-mvn -s maven-setting.xml spring-boot:run
+mvn -s maven-setting.xml -Dmaven.repo.local=.m2/repository spring-boot:run
 ```
 
 后端默认地址：
@@ -45,7 +46,7 @@ http://localhost:8080/swagger-ui.html
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev -- --hostname 127.0.0.1 --port 3000
 ```
 
 前端默认地址：
@@ -57,7 +58,8 @@ http://localhost:3000
 ## Docker 启动
 
 ```bash
-docker compose up --build
+colima start
+docker-compose up --build
 ```
 
 服务端口：
@@ -107,5 +109,7 @@ Redis: localhost:6379
 
 ```bash
 cd backend
-mvn -s maven-setting.xml test
+mvn -s maven-setting.xml -Dmaven.repo.local=.m2/repository test
 ```
+
+当前 `backend/maven-setting.xml` 强制使用 Maven Central，并配置了本机代理 `127.0.0.1:7890`。如果本机代理端口不同，需要同步修改该文件里的 `<proxies>`。

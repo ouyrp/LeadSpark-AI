@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS contact (
   KEY idx_contact_title (tenant_id, title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS lead (
+CREATE TABLE IF NOT EXISTS sales_lead (
   id BIGINT PRIMARY KEY,
   tenant_id BIGINT NOT NULL,
   company_id BIGINT NOT NULL,
