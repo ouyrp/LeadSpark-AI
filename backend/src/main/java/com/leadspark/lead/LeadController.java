@@ -103,6 +103,30 @@ public class LeadController {
                 ORDER BY due_at ASC
                 LIMIT 10
                 """, TENANT_ID, id);
+        List<Map<String, Object>> contacts = jdbcTemplate.queryForList("""
+                SELECT id, name, title, department, confidence, source, created_at AS createdAt
+                FROM contact
+                WHERE tenant_id = ? AND company_id = ? AND deleted = 0
+                ORDER BY confidence DESC, created_at DESC
+                LIMIT 10
+                """, TENANT_ID, companyId);
+        List<Map<String, Object>> followUps = jdbcTemplate.queryForList("""
+                SELECT id, user_id AS userId, channel, content, result,
+                       next_action AS nextAction, next_follow_up_at AS nextFollowUpAt,
+                       created_at AS createdAt
+                FROM follow_up_record
+                WHERE tenant_id = ? AND lead_id = ?
+                ORDER BY created_at DESC
+                LIMIT 10
+                """, TENANT_ID, id);
+        List<Map<String, Object>> opportunities = jdbcTemplate.queryForList("""
+                SELECT id, stage, amount, probability, expected_close_date AS expectedCloseDate,
+                       status, lost_reason AS lostReason, created_at AS createdAt
+                FROM opportunity
+                WHERE tenant_id = ? AND lead_id = ?
+                ORDER BY created_at DESC
+                LIMIT 10
+                """, TENANT_ID, id);
         List<Map<String, Object>> recommendations = jdbcTemplate.queryForList("""
                 SELECT id, recommendation_type AS recommendationType, content, model_name AS modelName,
                        confidence, created_at AS createdAt
@@ -115,7 +139,10 @@ public class LeadController {
         return ApiResponse.success(Map.of(
                 "lead", lead,
                 "signals", signals,
+                "contacts", contacts,
                 "tasks", tasks,
+                "followUps", followUps,
+                "opportunities", opportunities,
                 "recommendations", recommendations));
     }
 

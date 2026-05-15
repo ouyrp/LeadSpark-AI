@@ -4,7 +4,7 @@ import Link from "next/link";
 const navItems = [
   { label: "工作台", href: "/" },
   { label: "线索中心", href: "/leads" },
-  { label: "客户画像", href: "/leads" },
+  { label: "客户画像", href: "/profiles" },
   { label: "销售任务", href: "/tasks" },
   { label: "商机管理", href: "/opportunities" },
   { label: "数据分析", href: "/" },

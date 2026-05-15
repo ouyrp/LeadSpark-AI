@@ -1,6 +1,7 @@
 import { AppShell } from "@/components/AppShell";
 import { apiGet, apiPost } from "@/lib/api";
 import { Brain, Building2, Plus, Search, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -203,10 +204,18 @@ export default async function LeadsPage({
                       <td className="px-4 py-4">
                         <form action={scoreLead}>
                           <input type="hidden" name="leadId" value={lead.id} />
-                          <button className="inline-flex h-9 items-center justify-center gap-2 rounded border border-slate-200 px-3 text-sm font-medium text-leaf hover:bg-slate-50">
-                            <Brain size={15} />
-                            重新评分
-                          </button>
+                          <div className="flex flex-wrap gap-2">
+                            <Link
+                              href={`/profiles?leadId=${lead.id}`}
+                              className="inline-flex h-9 items-center justify-center rounded border border-slate-200 px-3 text-sm font-medium text-leaf hover:bg-slate-50"
+                            >
+                              查看画像
+                            </Link>
+                            <button className="inline-flex h-9 items-center justify-center gap-2 rounded border border-slate-200 px-3 text-sm font-medium text-leaf hover:bg-slate-50">
+                              <Brain size={15} />
+                              重新评分
+                            </button>
+                          </div>
                         </form>
                       </td>
                     </tr>
