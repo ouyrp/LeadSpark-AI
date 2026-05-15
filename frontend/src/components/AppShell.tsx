@@ -6,7 +6,7 @@ const navItems = [
   { label: "线索中心", href: "/leads" },
   { label: "客户画像", href: "/leads" },
   { label: "销售任务", href: "/tasks" },
-  { label: "商机管理", href: "/" },
+  { label: "商机管理", href: "/opportunities" },
   { label: "数据分析", href: "/" },
   { label: "系统设置", href: "/" },
 ];

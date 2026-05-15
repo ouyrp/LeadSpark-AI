@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,6 +83,41 @@ public class OpportunityController {
         return ApiResponse.success(Map.of("id", id, "stage", request.stage() == null ? "QUALIFIED" : request.stage(), "status", "OPEN"));
     }
 
+    @PatchMapping("/{id}")
+    public ApiResponse<Map<String, Object>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateOpportunityRequest request) {
+        String stage = request.stage() == null ? "QUALIFIED" : request.stage();
+        String status = request.status() == null ? "OPEN" : request.status();
+        jdbcTemplate.update("""
+                UPDATE opportunity
+                SET stage = ?, probability = ?, status = ?, lost_reason = ?, updated_at = ?
+                WHERE tenant_id = ? AND id = ?
+                """,
+                stage,
+                request.probability() == null ? 50 : request.probability(),
+                status,
+                request.lostReason(),
+                Timestamp.valueOf(LocalDateTime.now()),
+                TENANT_ID,
+                id);
+
+        if ("WON".equals(status) || "LOST".equals(status)) {
+            jdbcTemplate.update("""
+                    UPDATE sales_lead l
+                    JOIN opportunity o ON o.tenant_id = l.tenant_id AND o.lead_id = l.id
+                    SET l.status = ?, l.updated_at = ?
+                    WHERE o.tenant_id = ? AND o.id = ?
+                    """,
+                    status,
+                    Timestamp.valueOf(LocalDateTime.now()),
+                    TENANT_ID,
+                    id);
+        }
+
+        return ApiResponse.success(Map.of("id", id, "stage", stage, "status", status));
+    }
+
     public record CreateOpportunityRequest(
             @NotNull Long leadId,
             String stage,
@@ -88,5 +125,12 @@ public class OpportunityController {
             Integer probability,
             LocalDate expectedCloseDate,
             Long ownerUserId) {
+    }
+
+    public record UpdateOpportunityRequest(
+            String stage,
+            Integer probability,
+            String status,
+            String lostReason) {
     }
 }
