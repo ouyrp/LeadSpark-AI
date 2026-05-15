@@ -8,7 +8,7 @@ const navItems = [
   { label: "销售任务", href: "/tasks" },
   { label: "商机管理", href: "/opportunities" },
   { label: "数据分析", href: "/analytics" },
-  { label: "系统设置", href: "/" },
+  { label: "系统设置", href: "/settings" },
 ];
 
 export function AppShell({

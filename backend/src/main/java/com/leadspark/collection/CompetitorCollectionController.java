@@ -29,7 +29,17 @@ public class CompetitorCollectionController {
                 "enabled", properties.isEnabled(),
                 "cron", properties.getCron(),
                 "tenantId", properties.getTenantId(),
-                "keywords", properties.getKeywords()));
+                "keywords", properties.getKeywords(),
+                "sources", Map.of(
+                        "mock", sourceStatus(properties.getSources().getMock()),
+                        "qichacha", sourceStatus(properties.getSources().getQichacha()),
+                        "tianyancha", sourceStatus(properties.getSources().getTianyancha()),
+                        "searchApi", sourceStatus(properties.getSources().getSearchApi()),
+                        "internal", sourceStatus(properties.getSources().getInternal()),
+                        "recruitmentApi", sourceStatus(properties.getSources().getRecruitmentApi()),
+                        "biddingApi", sourceStatus(properties.getSources().getBiddingApi()),
+                        "newsApi", sourceStatus(properties.getSources().getNewsApi()),
+                        "websiteApi", sourceStatus(properties.getSources().getWebsiteApi()))));
     }
 
     @PostMapping("/run")
@@ -45,5 +55,12 @@ public class CompetitorCollectionController {
     @GetMapping("/signals")
     public ApiResponse<Map<String, Object>> signals() {
         return ApiResponse.success(Map.of("items", collectionService.recentSignals()));
+    }
+
+    private Map<String, Object> sourceStatus(CompetitorCollectionProperties.Source source) {
+        return Map.of(
+                "enabled", source.isEnabled(),
+                "configured", source.isConfigured(),
+                "hasApiKey", source.getApiKey() != null && !source.getApiKey().isBlank());
     }
 }
