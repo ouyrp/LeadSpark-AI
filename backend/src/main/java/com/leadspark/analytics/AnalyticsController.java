@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,15 +61,50 @@ public class AnalyticsController {
                 GROUP BY source
                 ORDER BY count DESC
                 """, TENANT_ID);
+        List<Map<String, Object>> statusStats = jdbcTemplate.queryForList("""
+                SELECT status, COUNT(*) AS count
+                FROM sales_lead
+                WHERE tenant_id = ? AND deleted = 0
+                GROUP BY status
+                ORDER BY count DESC
+                """, TENANT_ID);
+        List<Map<String, Object>> taskStats = jdbcTemplate.queryForList("""
+                SELECT status, COUNT(*) AS count
+                FROM sales_task
+                WHERE tenant_id = ?
+                GROUP BY status
+                ORDER BY count DESC
+                """, TENANT_ID);
+        List<Map<String, Object>> opportunityFunnel = jdbcTemplate.queryForList("""
+                SELECT stage, status, COUNT(*) AS count, COALESCE(SUM(amount), 0) AS amount,
+                       ROUND(AVG(probability), 1) AS avgProbability
+                FROM opportunity
+                WHERE tenant_id = ?
+                GROUP BY stage, status
+                ORDER BY FIELD(stage, 'QUALIFIED', 'DEMO', 'PROPOSAL', 'NEGOTIATION', 'CLOSED'), status
+                """, TENANT_ID);
+        List<Map<String, Object>> leadTrend = jdbcTemplate.queryForList("""
+                SELECT DATE(created_at) AS date, COUNT(*) AS count
+                FROM sales_lead
+                WHERE tenant_id = ? AND deleted = 0
+                  AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 13 DAY)
+                GROUP BY DATE(created_at)
+                ORDER BY date ASC
+                """, TENANT_ID);
 
-        return ApiResponse.success(Map.of(
-                "todayTasks", todayTasks,
-                "overdueTasks", overdueTasks,
-                "newHighScoreLeads", highScoreLeads,
-                "weeklyTouches", weeklyTouches,
-                "monthlyDealAmount", monthlyDealAmount == null ? BigDecimal.ZERO : monthlyDealAmount,
-                "scoreBuckets", scoreBuckets,
-                "sourceStats", sourceStats));
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("todayTasks", todayTasks);
+        result.put("overdueTasks", overdueTasks);
+        result.put("newHighScoreLeads", highScoreLeads);
+        result.put("weeklyTouches", weeklyTouches);
+        result.put("monthlyDealAmount", monthlyDealAmount == null ? BigDecimal.ZERO : monthlyDealAmount);
+        result.put("scoreBuckets", scoreBuckets);
+        result.put("sourceStats", sourceStats);
+        result.put("statusStats", statusStats);
+        result.put("taskStats", taskStats);
+        result.put("opportunityFunnel", opportunityFunnel);
+        result.put("leadTrend", leadTrend);
+        return ApiResponse.success(result);
     }
 
     private Integer number(String sql) {
